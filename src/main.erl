@@ -32,7 +32,7 @@ client_loop(Socket, MovesX, MovesY) ->
 					client_loop(Socket, MovesX, MovesY);
 					
 				{"/newgame", []} -> 
-					gen_tcp:send(Socket, internal:response(200, ["{\"ok\": 1}"])),
+					gen_tcp:send(Socket, internal:response(200, [ simple_json_encode([{ok,1}]) ])),
 					client_loop(Socket, [], []);
 				
 				{"/play",[{"x",Xin}, {"y",Yin}, {"aggress", Ain}]} ->
@@ -44,12 +44,12 @@ client_loop(Socket, MovesX, MovesY) ->
 					{_,{X2,Y2}} = computer_logic:get_bot_move(TmpX, MovesY, Aggress),
 					TmpY = MovesY ++ [{X2,Y2}],
 					Res = case check_winner:cw(TmpX, TmpY, {X,Y}, {X2, Y2}, []) of
-						bot_win -> lists:concat(["{\"lose\" : 1, \"x\":",X2, ", \"y\":", Y2, "}"]);
-						player_win -> ["{\"win\": 1 }"];
-						draw -> ["{\"draw\": 1 }"];
-						next -> lists:concat(["{\"x\":",X2, ", \"y\":", Y2, "}"])
+						bot_win -> [{loose,1},{x,X2},{y,Y2}];
+						player_win -> [{win,1}];
+						draw -> [{draw,1}];
+						next -> [{x,X2}, {y,Y2}]
 					end,
-					ok = gen_tcp:send(Socket, internal:response(200, Res)),
+					ok = gen_tcp:send(Socket, internal:response(200, simple_json_encode(Res))),
 					client_loop(Socket, TmpX, TmpY);
 				X -> 
 				io:format("Unhandled HTTP request ~p~n", [X]),
@@ -68,4 +68,17 @@ client_loop(Socket, MovesX, MovesY) ->
 			%io:format("Unhandled TCP message ~p~n", [_Y]),
 			client_loop(Socket, MovesX, MovesY)
 	end.
+
+simple_json_encode(List) ->
+	lists:concat(["{", simple_json_encode_el(List), "}"]).
+
+simple_json_encode_el([]) -> [];
+simple_json_encode_el([Pair]) ->
+	simple_json_pack_pair(Pair);
+simple_json_encode_el([Pair|Tail]) ->
+	[simple_json_pack_pair(Pair), ",", simple_json_encode_el(Tail)].
+
+simple_json_pack_pair({Name, Val}) ->
+	["\"", atom_to_list(Name), "\":", integer_to_list(Val)].
+
 
