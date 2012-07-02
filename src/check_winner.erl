@@ -3,7 +3,7 @@
 -export([cw/5]).
 
 
-cw(MovesX, MovesY, {X,Y}, {X2, Y2}, check_draw) ->
+cw(_MovesX, MovesY, {_X,_Y}, {_X2, _Y2}, check_draw) ->
 	
 	case length(MovesY) == 50 of 
 
@@ -39,8 +39,8 @@ cw(MovesX, MovesY, {X,Y}, {X2, Y2}, []) ->
 
 check_win(MoveList, LastMove) -> check_win(MoveList, LastMove, horizontal, 0).
 
-check_win(MoveList, LastMove, _, 5) -> true;
-check_win(MoveList, LastMove, finish, _) -> false;
+check_win(_MoveList, _LastMove, _, 5) -> true;
+check_win(_MoveList, _LastMove, finish, _) -> false;
 
 check_win(MoveList, LastMove, horizontal, _) ->
 	Horizontal = checkHR(MoveList, LastMove, true) + checkHL(MoveList, LastMove, true) + 1,
@@ -59,15 +59,15 @@ check_win(MoveList, LastMove, sdiagonal, _)->
 check_win(MoveList, LastMove, finish, SDiagonal).
 
 
-checkHR(MovesList, {X,Y}, false) -> -1;
+checkHR(_MovesList, {_X,_Y}, false) -> -1;
 checkHR(MovesList, {X,Y}, true) ->
 
 	NextX = X + 1,
 
-1 + checkHR(MovesList, {NextX, Y}, internal:exist_in_list(MovesList, {NextX, Y})).
+	1 + checkHR(MovesList, {NextX, Y}, internal:exist_in_list(MovesList, {NextX, Y})).
 
 
-checkHL(MovesList, {X,Y}, false) -> -1;
+checkHL(_MovesList, {_X,_Y}, false) -> -1;
 checkHL(MovesList, {X,Y}, true) ->
 
 	NextX = X - 1,
@@ -76,7 +76,7 @@ checkHL(MovesList, {X,Y}, true) ->
 
 %----------------------------------------------- Вертикаль
 
-checkVU(MovesList, {X,Y}, false) -> -1;
+checkVU(_MovesList, {_X,_Y}, false) -> -1;
 checkVU(MovesList, {X,Y}, true) -> 
 
 	NextY = Y + 1,
@@ -84,7 +84,7 @@ checkVU(MovesList, {X,Y}, true) ->
 1 + checkVU(MovesList, {X, NextY}, internal:exist_in_list(MovesList, {X, NextY})).
 
 
-checkVD(MovesList, {X,Y}, false) -> -1;
+checkVD(_MovesList, {_X,_Y}, false) -> -1;
 checkVD(MovesList, {X,Y}, true) -> 
 
 	NextY = Y - 1,
@@ -93,7 +93,7 @@ checkVD(MovesList, {X,Y}, true) ->
 
 %----------------------------------------------- 1 - ая диагональ 
 
-checkFDU(MovesList, {X,Y}, false) -> -1;
+checkFDU(_MovesList, {_X,_Y}, false) -> -1;
 checkFDU(MovesList, {X,Y}, true) ->
 
 	NextX = X + 1, NextY = Y + 1,
@@ -101,7 +101,7 @@ checkFDU(MovesList, {X,Y}, true) ->
 1 + checkFDU(MovesList, {NextX, NextY}, internal:exist_in_list(MovesList, {NextX, NextY})).	
 
 
-checkFDD(MovesList, {X,Y}, false) -> -1;
+checkFDD(_MovesList, {_X,_Y}, false) -> -1;
 checkFDD(MovesList, {X,Y}, true) ->
 
 	NextX = X - 1, NextY = Y - 1,
@@ -110,7 +110,7 @@ checkFDD(MovesList, {X,Y}, true) ->
 
 %----------------------------------------------- 2- ая диагональ
 
-checkSDU(MovesList, {X,Y}, false) -> -1;
+checkSDU(_MovesList, {_X,_Y}, false) -> -1;
 checkSDU(MovesList, {X,Y}, true) -> 
 
 	NextX = X - 1, NextY = Y + 1,
@@ -118,7 +118,7 @@ checkSDU(MovesList, {X,Y}, true) ->
 1 + checkSDU(MovesList, {NextX, NextY}, internal:exist_in_list(MovesList, {NextX, NextY})).
 
 
-checkSDD(MovesList, {X,Y}, false) -> -1;
+checkSDD(_MovesList, {_X,_Y}, false) -> -1;
 checkSDD(MovesList, {X,Y}, true) -> 
 
 	NextX = X + 1, NextY = Y - 1,

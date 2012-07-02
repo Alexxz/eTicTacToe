@@ -64,8 +64,8 @@ loop(RC ,MovesX, MovesY, Num - 1, Res).
 
 
 
-calculate(CList, MovesX, MovesY, Current, BreakElement, W) when Current == BreakElement -> 0;
-calculate(CList, MovesX, MovesY, Current, BreakElement, W) ->
+calculate(_CList, _MovesX, _MovesY, Current, BreakElement, _W) when Current == BreakElement -> 0;
+calculate(CList, MovesX, MovesY, _Current, BreakElement, W) ->
 
 	Res =  loop(CList, MovesX, MovesY, 5, 0),
 	
