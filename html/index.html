@@ -328,7 +328,6 @@ var id = '';
 
 $('#board-table td').live('click', function(e) {
 
-	$('#' + e.target.id).html('X');
 
 	tmp = e.target.id.split('x');
 	x = tmp[0];
@@ -341,32 +340,30 @@ $('#board-table td').live('click', function(e) {
 			dataType: 'json'
 
 		}).done(function(msg){
+			if(msg.wrong == 1){
+				alert('wrong move');
+				return;
+			}					
 			
+			$('#' + e.target.id).html('X');
+
 			id = msg.x + 'x' + msg.y;
 			$('#' + last_active_id).css('border-color', 'black');
 			$('#' + id).html('O');
 			$('#' + id).css('border-color', 'red');
 			last_active_id = id;
 			
+			if(msg.win == 1){
+				alert('YOUR WIN');
+			}
+				
+			if(msg.lose == 1){
+				alert('BOT WIN');
+			}
 			
-					if(msg.win == 1){
-
-						alert('YOUR WIN');
-						
-					}
-					
-					if(msg.lose == 1){
-						
-						alert('BOT WIN');
-						
-					}
-					
-					if(msg.draw == 1){
-						
-						alert('draw');
-						
-					}
-					
+			if(msg.draw == 1){
+				alert('draw');
+			}
 			
 		});
 
