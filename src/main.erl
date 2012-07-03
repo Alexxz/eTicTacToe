@@ -29,7 +29,7 @@ client_loop(Socket, MovesX, MovesY) ->
 				{"/", []} -> %index page
 					{ok, Data} = file:read_file("../html/index.html"),
 					ok = gen_tcp:send(Socket, internal:response(200, Data)),
-					client_loop(Socket, MovesX, MovesY);
+					client_loop(Socket, [], []); % start a new game on refresh
 					
 				{"/newgame", []} -> 
 					gen_tcp:send(Socket, internal:response(200, [ simple_json_encode([{ok,1}]) ])),
@@ -44,12 +44,14 @@ client_loop(Socket, MovesX, MovesY) ->
 					{_,{X2,Y2}} = computer_logic:get_bot_move(TmpX, MovesY, Aggress),
 					TmpY = MovesY ++ [{X2,Y2}],
 					Res = case check_winner:cw(TmpX, TmpY, {X,Y}, {X2, Y2}, []) of
-						bot_win -> [{loose,1},{x,X2},{y,Y2}];
+						bot_win -> [{lose,1},{x,X2},{y,Y2}];
 						player_win -> [{win,1}];
 						draw -> [{draw,1}];
 						next -> [{x,X2}, {y,Y2}]
 					end,
-					ok = gen_tcp:send(Socket, internal:response(200, simple_json_encode(Res))),
+					D = simple_json_encode(Res),
+					ok = gen_tcp:send(Socket, internal:response(200, D)),
+					%io:format("Data ~p~n", [D]),
 					client_loop(Socket, TmpX, TmpY);
 				X -> 
 				io:format("Unhandled HTTP request ~p~n", [X]),
