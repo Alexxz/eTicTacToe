@@ -52,7 +52,7 @@ client_loop(Socket, MovesX, MovesY) ->
 						case check_winner:cw(TmpX, TmpY, {X,Y}, {X2, Y2}, []) of
 							bot_win -> [{lose,1},{x,X2},{y,Y2}];
 							player_win -> [{win,1}];
-							draw -> [{draw,1}];
+							draw -> [{draw,1}, {x,X2}, {y,Y2}];
 							next -> [{x,X2}, {y,Y2}]
 						end
 					end,
