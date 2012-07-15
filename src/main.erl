@@ -12,13 +12,11 @@ s(Port)->
    	
 accept_loop(Socket) ->
 	{ok, CSocket} = gen_tcp:accept(Socket),
-	Pid = spawn(fun() -> client_socket() end), % using fun to avoid function expoting
+	Pid = spawn(fun() -> client_socket(CSocket) end), % using fun to avoid function exporting
 	ok = gen_tcp:controlling_process(CSocket, Pid),
-	Pid ! {take_socket, CSocket},
 	accept_loop(Socket).
 
-client_socket() ->
-	Socket = receive {take_socket, S} -> S end,
+client_socket(Socket) ->
 	ok = inet:setopts(Socket, [{active, true}]),
 	client_loop(Socket, [], []).
 	
@@ -62,6 +60,7 @@ client_loop(Socket, MovesX, MovesY) ->
 					client_loop(Socket, TmpX, TmpY);
 				X -> 
 				io:format("Unhandled HTTP request ~p~n", [X]),
+ 				ok = gen_tcp:send(Socket, internal:response(200, "Unknown request")),
 				client_loop(Socket, MovesX, MovesY)
 			end;
 		
