@@ -29,6 +29,11 @@ client_loop(Socket, MovesX, MovesY) ->
 					ok = gen_tcp:send(Socket, internal:response(200, Data)),
 					client_loop(Socket, [], []); % start a new game on refresh
 					
+				{"/jquery.js", []} ->
+					{ok, Data} = file:read_file("../html/jquery.js"),
+					ok = gen_tcp:send(Socket, internal:response(js, Data)),
+					client_loop(Socket, MovesX, MovesY); % start a new game on refresh
+					
 				{"/newgame", []} -> 
 					gen_tcp:send(Socket, internal:response(200, [ simple_json_encode([{ok,1}]) ])),
 					client_loop(Socket, [], []);
