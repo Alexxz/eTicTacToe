@@ -5,11 +5,20 @@
 s(Port)-> 
 	spawn(
 		fun () -> 
-			{ok, Socket} = gen_tcp:listen(Port, [list,{active, false},{packet, http}]),  
+			{ok, Socket} = get_listen_socket(Port, 60),  
 			accept_loop(Socket) 
 		end).
 				
-   	
+get_listen_socket(_,0)->
+	{error,eaddrinuse};
+
+get_listen_socket(Port, N) ->
+	case gen_tcp:listen(Port, [list,{active, false},{packet, http}]) of
+		{ok, Socket} -> io:format("Got socket ~p~n",[Socket]), {ok, Socket};
+		{error,eaddrinuse} -> io:format("Waiting for 1 s (~p)~n",[N]), timer:sleep(1000), get_listen_socket(Port, N-1);
+		X -> X
+	end.
+
 accept_loop(Socket) ->
 	{ok, CSocket} = gen_tcp:accept(Socket),
 	Pid = spawn(fun() -> client_socket(CSocket) end), % using fun to avoid function exporting
@@ -25,6 +34,10 @@ client_loop(Socket, MovesX, MovesY) ->
 	   	{http, Socket, {http_request, 'GET', {abs_path, Path}, _Vers}} ->
 			case http_uri2:parse_path_query(Path) of
 				{"/", []} -> %index page
+					ok = gen_tcp:send(Socket, internal:response(redirect, "/game")),
+					client_loop(Socket, [], []); % start a new game on refresh
+
+				{"/game", []} -> %index page
 					{ok, Data} = file:read_file("../html/index.html"),
 					ok = gen_tcp:send(Socket, internal:response(200, Data)),
 					client_loop(Socket, [], []); % start a new game on refresh
