@@ -35,11 +35,13 @@ client_loop(Socket, MovesX, MovesY) ->
 			case http_uri2:parse_path_query(Path) of
 				{"/", []} -> %index page
 					ok = gen_tcp:send(Socket, internal:response(redirect, "/game")),
+					log("Resetting game state: ~p", [{MovesX, MovesY}]),
 					client_loop(Socket, [], []); % start a new game on refresh
 
 				{"/game", []} -> %index page
 					{ok, Data} = file:read_file("../html/index.html"),
 					ok = gen_tcp:send(Socket, internal:response(200, Data)),
+					log("Resetting game state: ~p", [{MovesX, MovesY}]),
 					client_loop(Socket, [], []); % start a new game on refresh
 					
 				{"/jquery.js", []} ->
@@ -49,6 +51,7 @@ client_loop(Socket, MovesX, MovesY) ->
 					
 				{"/newgame", []} -> 
 					gen_tcp:send(Socket, internal:response(200, [ simple_json_encode([{ok,1}]) ])),
+					log("Resetting game state: ~p", [{MovesX, MovesY}]),
 					client_loop(Socket, [], []);
 				
 				{"/play",[{"x",Xin}, {"y",Yin}, {"aggress", Ain}]} ->
@@ -64,7 +67,6 @@ client_loop(Socket, MovesX, MovesY) ->
 						log("Result: wrong move", []),
 						[{wrong, 1}];
 					false ->
-						io:format("Aggress ~p~n", [Aggress]),
 						TmpX = MovesX ++ [{X, Y}],
 						{_,{X2,Y2}} = computer_logic:get_bot_move(TmpX, MovesY, Aggress),
 						TmpY = MovesY ++ [{X2,Y2}],
